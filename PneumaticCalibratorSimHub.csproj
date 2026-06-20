@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
+		<OutputType>Library</OutputType>
+		<UseWPF>true</UseWPF>
+		<Nullable>disable</Nullable>
+		<AssemblyName>PneumaticCalibratorSimHub</AssemblyName>
+		<RootNamespace>PneumaticCalibratorSimHub</RootNamespace>
+		<!-- Bump à chaque release (doit matcher le tag GitHub, ex: tag "v0.0.1" -> 0.0.1) -->
+		<Version>0.0.1</Version>
+		<AssemblyVersion>0.0.1.0</AssemblyVersion>
+		<FileVersion>0.0.1.0</FileVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="SimHub.Plugins">
+			<HintPath>C:\Program Files (x86)\SimHub\SimHub.Plugins.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="System.Web" />
+		<Reference Include="System.Web.Extensions" /> <!-- JavaScriptSerializer pour parser le JSON de l'API GitHub -->
+		<Reference Include="System.Net.Http" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="System.IO.Ports" Version="8.0.0" />
+		<PackageReference Include="System.Management" Version="8.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Firmware\pneumatic_hid.hex" />
+		<EmbeddedResource Include="Tools\avrdude\avrdude.exe" />
+		<EmbeddedResource Include="Tools\avrdude\avrdude.conf" />
+		<!-- Dépendances NuGet embarquées : extraites au premier chargement si absentes du
+		     dossier SimHub, pour que seule cette DLL ait besoin d'être téléchargée/installée. -->
+		<EmbeddedResource Include="Deps\System.IO.Ports.dll" />
+		<EmbeddedResource Include="Deps\System.CodeDom.dll" />
+	</ItemGroup>
+
+	<!-- Copie automatique dans le dossier SimHub après chaque build, pour itérer rapidement
+	     (SimHub charge les plugins directement depuis son répertoire d'installation).
+	     Copie TOUTES les DLL/PDB de sortie (pas seulement le plugin), pour inclure les
+	     dépendances NuGet (ex: System.IO.Ports.dll) que SimHub ne fournit pas nativement. -->
+	<Target Name="DeployToSimHub" AfterTargets="Build">
+		<ItemGroup>
+			<SimHubFiles Include="$(TargetDir)*.dll" />
+			<SimHubFiles Include="$(TargetDir)*.pdb" />
+		</ItemGroup>
+		<Copy SourceFiles="@(SimHubFiles)" DestinationFolder="C:\Program Files (x86)\SimHub\" ContinueOnError="true" />
+	</Target>
+</Project>

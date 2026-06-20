@@ -1,0 +1,40 @@
+<UserControl x:Class="PneumaticCalibratorSimHub.ChannelPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
+             xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins">
+    <styles:SHSubSection x:Name="RootSection" Title="Canal" Margin="3">
+        <StackPanel>
+            <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8"/>
+
+            <TextBlock Text="RAW" FontSize="10" Opacity="0.8"/>
+            <TextBlock x:Name="LblRawVal" Text="—" FontSize="10" HorizontalAlignment="Right" Margin="0,-14,0,0"/>
+            <ProgressBar x:Name="BarRaw" Height="8" Margin="0,2,0,6" Minimum="0" Maximum="1023"/>
+
+            <TextBlock Text="OUTPUT" FontSize="10" FontWeight="Bold"/>
+            <TextBlock x:Name="LblOutVal" Text="—" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,-14,0,0"/>
+            <ProgressBar x:Name="BarOut" Height="8" Margin="0,2,0,8" Minimum="0" Maximum="1023"/>
+
+            <Border BorderBrush="#40808080" BorderThickness="1" Height="60" Margin="0,0,0,8" ClipToBounds="True">
+                <Canvas x:Name="ScopeCanvas" SizeChanged="ScopeCanvas_SizeChanged">
+                    <Line x:Name="GridLine25" Stroke="#30808080" StrokeThickness="1"/>
+                    <Line x:Name="GridLine50" Stroke="#30808080" StrokeThickness="1"/>
+                    <Line x:Name="GridLine75" Stroke="#30808080" StrokeThickness="1"/>
+                    <Polyline x:Name="ScopeTrace" Stroke="#06B6D4" StrokeThickness="1.4"/>
+                </Canvas>
+            </Border>
+
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <styles:SHButtonSecondary x:Name="BtnSetMin" Grid.Column="0" Content="↓ Set MIN" Margin="0,0,3,0" IsEnabled="False" Click="BtnSetMin_Click"/>
+                <styles:SHButtonSecondary x:Name="BtnSetMax" Grid.Column="1" Content="↑ Set MAX" Margin="3,0,0,0" IsEnabled="False" Click="BtnSetMax_Click"/>
+            </Grid>
+
+            <ui:TitledRangeSlider x:Name="DzSlider" Title="Deadzone" Minimum="0" Maximum="100"
+                                   LowerValue="2" UpperValue="98" IsEnabled="False"/>
+        </StackPanel>
+    </styles:SHSubSection>
+</UserControl>

@@ -1,0 +1,138 @@
+<UserControl x:Class="PneumaticCalibratorSimHub.SettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:PneumaticCalibratorSimHub"
+             xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <styles:SHTabControl>
+            <styles:SHTabItem Header="Calibration">
+                <StackPanel Margin="10">
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="CmbPort" Grid.Column="0" Margin="0,0,8,0" DropDownOpened="CmbPort_DropDownOpened"/>
+                        <styles:SHButtonPrimary x:Name="BtnConnect" Grid.Column="1" Content="Connecter" Width="110" Click="BtnConnect_Click"/>
+                    </Grid>
+
+                    <Label x:Name="LblStatus" Content="● Déconnecté" Margin="0,0,0,10" FontWeight="Bold"/>
+
+                    <!-- Masqué tant qu'on n'est pas connecté : rien de pertinent à calibrer -->
+                    <UniformGrid x:Name="ChannelsGrid" Rows="1" Visibility="Collapsed">
+                        <local:ChannelPanel x:Name="Panel0"/>
+                        <local:ChannelPanel x:Name="Panel1"/>
+                        <local:ChannelPanel x:Name="Panel2"/>
+                        <local:ChannelPanel x:Name="Panel3"/>
+                    </UniformGrid>
+
+                </StackPanel>
+            </styles:SHTabItem>
+
+            <styles:SHTabItem Header="Flash">
+                <StackPanel Margin="10">
+                    <Border Background="#332A1A1A" BorderBrush="#E8862C" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,12">
+                        <TextBlock TextWrapping="Wrap" FontWeight="Bold">
+                            <Run Text="⚠ Attention :"/><Run Text=" flasher la carte efface définitivement tout programme actuellement installé sur l'Arduino. Cette opération est irréversible et le programme existant ne pourra pas être récupéré."/>
+                        </TextBlock>
+                    </Border>
+
+                    <styles:SHSection Title="MATÉRIEL REQUIS">
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,4">
+                                <Run Text="Carte : "/><Run Text="Arduino Pro Micro (ATmega32U4)" FontWeight="Bold"/><Run Text=" ou compatible avec bootloader Caterina (Leonardo, SparkFun Pro Micro)."/>
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" Opacity="0.8" FontSize="11">
+                                La carte doit déjà avoir un bootloader Caterina installé (c'est le cas en sortie d'usine pour ces modèles). Le flash écrit uniquement le programme applicatif, pas le bootloader.
+                            </TextBlock>
+                        </StackPanel>
+                    </styles:SHSection>
+
+                    <styles:SHSection Title="CAPTEURS COMPATIBLES">
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6">
+                                Le firmware lit une tension analogique brute (0-5V) sur chaque pin : il fonctionne avec
+                                n'importe quel capteur fournissant directement ce type de signal, pas seulement des
+                                capteurs de pression pneumatique.
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,2" FontWeight="Bold" Foreground="#7CD992">✓ Compatibles</TextBlock>
+                            <TextBlock TextWrapping="Wrap" Opacity="0.85" FontSize="11" Margin="8,0,0,6">
+                                Capteurs de pression pneumatique • Potentiomètres linéaires ou rotatifs • Capteurs à effet Hall (linéaires ou rotatifs) à sortie analogique • Load cells avec module d'amplification intégré à sortie analogique ratiométrique (type 0.5-4.5V)
+                            </TextBlock>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,2" FontWeight="Bold" Foreground="#E8862C">✗ Non compatibles (sans modifier le firmware)</TextBlock>
+                            <TextBlock TextWrapping="Wrap" Opacity="0.85" FontSize="11" Margin="8,0,0,0">
+                                Load cells brutes (pont de Wheatstone sans ampli, signal en mV) • Load cells avec module HX711 (protocole numérique, pas analogique) • Encodeurs rotatifs incrémentaux à quadrature (nécessitent un comptage d'impulsions par interruption)
+                            </TextBlock>
+                        </StackPanel>
+                    </styles:SHSection>
+
+                    <styles:SHSection Title="BRANCHEMENT DES CAPTEURS">
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6">
+                                Chaque pédale (capteur de pression ou potentiomètre) se branche sur une pin analogique fixe :
+                            </TextBlock>
+                            <Grid Margin="8,0,0,8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="A0" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="Frein à main"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="A1" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="Accélérateur"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="A2" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="Frein"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="A3" FontWeight="Bold"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="Embrayage"/>
+                            </Grid>
+                            <TextBlock TextWrapping="Wrap" Opacity="0.8" FontSize="11">
+                                Le signal du capteur va sur la broche analogique, l'alimentation et la masse sur 5V/GND. Une pin sans capteur branché est détectée automatiquement et sa colonne reste masquée dans l'onglet Calibration.
+                            </TextBlock>
+                        </StackPanel>
+                    </styles:SHSection>
+
+                    <styles:SHSection Title="PROCÉDURE">
+                        <StackPanel>
+                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,8">
+                                1. Branche la carte en USB.   2. Sélectionne son port ci-dessous.   3. Clique "Flasher firmware" et ne débranche pas pendant l'opération (~15 secondes). La carte redémarre et se reconnecte automatiquement à la fin.
+                            </TextBlock>
+                            <ComboBox x:Name="CmbFlashPort" Margin="0,0,0,8" DropDownOpened="CmbFlashPort_DropDownOpened"/>
+                            <styles:SHButtonPrimary x:Name="BtnFlash" Content="⚡ Flasher firmware" HorizontalAlignment="Left" Click="BtnFlash_Click"/>
+                        </StackPanel>
+                    </styles:SHSection>
+                </StackPanel>
+            </styles:SHTabItem>
+
+            <styles:SHTabItem Header="Dev">
+                <StackPanel Margin="10">
+                    <styles:SHSection Title="OPTIONS DÉVELOPPEUR">
+                        <styles:SHToggleCheckbox x:Name="ChkShowAllAxes"
+                                                  Checked="ChkShowAllAxes_Checked"
+                                                  Unchecked="ChkShowAllAxes_Unchecked">
+                            Afficher tous les axes (même débranchés, dans l'onglet Calibration)
+                        </styles:SHToggleCheckbox>
+                    </styles:SHSection>
+
+                    <styles:SHSection Title="MISE À JOUR">
+                        <StackPanel>
+                            <TextBlock x:Name="LblCurrentVersion" Text="Version actuelle : —" Margin="0,0,0,8"/>
+                            <styles:SHButtonSecondary x:Name="BtnCheckUpdate" Content="Vérifier les mises à jour"
+                                                       HorizontalAlignment="Left" Margin="0,0,0,8" Click="BtnCheckUpdate_Click"/>
+                            <TextBlock x:Name="LblUpdateStatus" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8"/>
+                            <styles:SHButtonPrimary x:Name="BtnInstallUpdate" Content="Télécharger et installer"
+                                                     HorizontalAlignment="Left" Visibility="Collapsed" Click="BtnInstallUpdate_Click"/>
+                        </StackPanel>
+                    </styles:SHSection>
+
+                    <styles:SHSection Title="LOG">
+                        <TextBox x:Name="TxtLog" Height="400" FontFamily="Consolas" FontSize="11" IsReadOnly="True"
+                                 VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap"/>
+                    </styles:SHSection>
+                </StackPanel>
+            </styles:SHTabItem>
+        </styles:SHTabControl>
+    </ScrollViewer>
+</UserControl>

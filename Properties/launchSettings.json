@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SimHub": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files (x86)\\SimHub\\SimHubWPF.exe",
+      "workingDirectory": "C:\\Program Files (x86)\\SimHub"
+    }
+  }
+}
