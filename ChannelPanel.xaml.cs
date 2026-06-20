@@ -49,6 +49,17 @@ namespace PneumaticCalibratorSimHub
             ChannelIndex = channelIndex;
             RootSection.Title = name;
             LblPin.Text = pin;
+            ApplyLocalization(name);
+        }
+
+        public void ApplyLocalization(string name)
+        {
+            RootSection.Title = name;
+            LblRaw.Text = Localization.T("Raw");
+            LblOutput.Text = Localization.T("Output");
+            BtnSetMin.Content = Localization.T("SetMin");
+            BtnSetMax.Content = Localization.T("SetMax");
+            DzSlider.Title = Localization.T("Deadzone");
         }
 
         public void SetEnabledForConnection(bool connected)

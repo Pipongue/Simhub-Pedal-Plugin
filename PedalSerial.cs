@@ -16,7 +16,8 @@ namespace PneumaticCalibratorSimHub
     public class PedalSerial : IDisposable
     {
         public const int NumChannels = 4;
-        public static readonly string[] ChannelNames = { "Frein à main", "Accélérateur", "Frein", "Embrayage" };
+        public static readonly string[] ChannelNameKeys = { "Channel.Handbrake", "Channel.Throttle", "Channel.Brake", "Channel.Clutch" };
+        public static string[] ChannelNames => new[] { Localization.T(ChannelNameKeys[0]), Localization.T(ChannelNameKeys[1]), Localization.T(ChannelNameKeys[2]), Localization.T(ChannelNameKeys[3]) };
         public static readonly string[] ChannelPins  = { "A0", "A1", "A2", "A3" };
 
         public event Action<string> Log;

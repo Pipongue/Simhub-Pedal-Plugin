@@ -17,9 +17,13 @@ namespace PneumaticCalibratorSimHub
         private bool _flashing;
         private PluginUpdater.UpdateInfo _pendingUpdate;
         private bool _checkingUpdate;
+        private bool _isConnected;
+        private string _connectedPort;
+        private bool _suppressLangEvent;
 
         public SettingsControl()
         {
+            Localization.Load();
             InitializeComponent();
             _panels = new[] { Panel0, Panel1, Panel2, Panel3 };
             for (int ch = 0; ch < _panels.Length; ch++)
@@ -41,7 +45,68 @@ namespace PneumaticCalibratorSimHub
             _scopeTimer.Tick += (s, e) => { foreach (var p in _panels) p.OnScopeTick(); };
             _scopeTimer.Start();
 
-            LblCurrentVersion.Text = $"Version actuelle : {PluginUpdater.CurrentVersion}";
+            Localization.LanguageChanged += ApplyLocalization;
+            ApplyLocalization();
+        }
+
+        private void ApplyLocalization()
+        {
+            TabCalibration.Header = Localization.T("Tab.Calibration");
+            TabFlash.Header = Localization.T("Tab.Flash");
+            TabSettings.Header = Localization.T("Tab.Settings");
+
+            BtnConnect.Content = Localization.T(_isConnected ? "Disconnect" : "Connect");
+            LblStatus.Content = _isConnected
+                ? Localization.T("Status.Connected", _connectedPort)
+                : Localization.T("Status.Disconnected");
+
+            RunFlashWarningTitle.Text = Localization.T("Flash.Warning");
+            RunFlashWarningBody.Text = Localization.T("Flash.WarningBody");
+            SecHardware.Title = Localization.T("Flash.HardwareRequired");
+            RunBoardLine1.Text = Localization.T("Flash.BoardLine1");
+            RunBoardBold.Text = Localization.T("Flash.BoardBold");
+            RunBoardLine1End.Text = Localization.T("Flash.BoardLine1End");
+            TxtBoardNote.Text = Localization.T("Flash.BoardNote");
+            SecSensors.Title = Localization.T("Flash.CompatibleSensors");
+            TxtSensorsIntro.Text = Localization.T("Flash.SensorsIntro");
+            TxtCompatibleTitle.Text = Localization.T("Flash.Compatible");
+            TxtCompatibleList.Text = Localization.T("Flash.CompatibleList");
+            TxtIncompatibleTitle.Text = Localization.T("Flash.Incompatible");
+            TxtIncompatibleList.Text = Localization.T("Flash.IncompatibleList");
+            SecWiring.Title = Localization.T("Flash.Wiring");
+            TxtWiringIntro.Text = Localization.T("Flash.WiringIntro");
+            TxtPinA0.Text = Localization.T("Channel.Handbrake");
+            TxtPinA1.Text = Localization.T("Channel.Throttle");
+            TxtPinA2.Text = Localization.T("Channel.Brake");
+            TxtPinA3.Text = Localization.T("Channel.Clutch");
+            TxtWiringNote.Text = Localization.T("Flash.WiringNote");
+            SecProcedure.Title = Localization.T("Flash.Procedure");
+            TxtProcedureSteps.Text = Localization.T("Flash.ProcedureSteps");
+            BtnFlash.Content = _flashing ? Localization.T("Flash.ButtonInProgress") : Localization.T("Flash.Button");
+
+            SecDevOptions.Title = Localization.T("Settings.DevOptions");
+            ChkShowAllAxes.Content = Localization.T("Settings.ShowAllAxes");
+            SecLanguage.Title = Localization.T("Settings.Language");
+            _suppressLangEvent = true;
+            CmbLanguage.Items.Clear();
+            CmbLanguage.Items.Add(Localization.T("Settings.LangFr"));
+            CmbLanguage.Items.Add(Localization.T("Settings.LangEn"));
+            CmbLanguage.SelectedIndex = Localization.Current == Lang.En ? 1 : 0;
+            _suppressLangEvent = false;
+            SecUpdate.Title = Localization.T("Settings.Update");
+            LblCurrentVersion.Text = Localization.T("Settings.CurrentVersion", PluginUpdater.CurrentVersion);
+            BtnCheckUpdate.Content = Localization.T("Settings.CheckUpdate");
+            BtnInstallUpdate.Content = Localization.T("Settings.DownloadInstall");
+            SecLog.Title = Localization.T("Settings.Log");
+
+            for (int ch = 0; ch < _panels.Length; ch++)
+                _panels[ch].ApplyLocalization(PedalSerial.ChannelNames[ch]);
+        }
+
+        private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_suppressLangEvent) return;
+            Localization.SetLanguage(CmbLanguage.SelectedIndex == 1 ? Lang.En : Lang.Fr);
         }
 
         private async void BtnCheckUpdate_Click(object sender, RoutedEventArgs e)
@@ -50,7 +115,7 @@ namespace PneumaticCalibratorSimHub
             _checkingUpdate = true;
             BtnCheckUpdate.IsEnabled = false;
             LblUpdateStatus.Visibility = Visibility.Visible;
-            LblUpdateStatus.Text = "Vérification en cours...";
+            LblUpdateStatus.Text = Localization.T("Settings.Checking");
             BtnInstallUpdate.Visibility = Visibility.Collapsed;
             _pendingUpdate = null;
 
@@ -59,18 +124,18 @@ namespace PneumaticCalibratorSimHub
                 var update = await PluginUpdater.CheckForUpdateAsync();
                 if (update == null)
                 {
-                    LblUpdateStatus.Text = "Vous avez déjà la dernière version.";
+                    LblUpdateStatus.Text = Localization.T("Settings.UpToDate");
                 }
                 else
                 {
                     _pendingUpdate = update;
-                    LblUpdateStatus.Text = $"Nouvelle version disponible : {update.Version}";
+                    LblUpdateStatus.Text = Localization.T("Settings.NewVersion", update.Version);
                     BtnInstallUpdate.Visibility = Visibility.Visible;
                 }
             }
             catch (Exception ex)
             {
-                LblUpdateStatus.Text = $"Échec de la vérification : {ex.Message}";
+                LblUpdateStatus.Text = Localization.T("Settings.CheckFailed", ex.Message);
                 AppendLog($"[update] échec vérification : {ex.Message}");
             }
             finally
@@ -85,22 +150,21 @@ namespace PneumaticCalibratorSimHub
             if (_pendingUpdate == null) return;
 
             var confirm = MessageBox.Show(
-                $"Télécharger et installer la version {_pendingUpdate.Version} ?\n\n" +
-                "La mise à jour sera appliquée automatiquement à la prochaine fermeture de SimHub.",
-                "Installer la mise à jour", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                Localization.T("Settings.ConfirmInstallBody", _pendingUpdate.Version),
+                Localization.T("Settings.ConfirmInstallTitle"), MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
             BtnInstallUpdate.IsEnabled = false;
             try
             {
                 await PluginUpdater.DownloadAndScheduleInstallAsync(_pendingUpdate, line => Dispatcher.Invoke(() => AppendLog(line)));
-                LblUpdateStatus.Text = $"Mise à jour {_pendingUpdate.Version} prête — sera installée à la prochaine fermeture de SimHub.";
+                LblUpdateStatus.Text = Localization.T("Settings.UpdateReady", _pendingUpdate.Version);
                 BtnInstallUpdate.Visibility = Visibility.Collapsed;
                 _pendingUpdate = null;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Échec du téléchargement :\n{ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Localization.T("Settings.DownloadFailedBody", ex.Message), Localization.T("Settings.DownloadFailedTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
                 AppendLog($"[update] échec téléchargement : {ex.Message}");
             }
             finally
@@ -139,7 +203,7 @@ namespace PneumaticCalibratorSimHub
             CmbPort.Items.Clear();
             if (ports.Count == 0)
             {
-                CmbPort.Items.Add("Aucun appareil détecté");
+                CmbPort.Items.Add(Localization.T("NoDeviceFound"));
                 CmbPort.SelectedIndex = 0;
                 return;
             }
@@ -161,7 +225,7 @@ namespace PneumaticCalibratorSimHub
             CmbFlashPort.Items.Clear();
             if (ports.Count == 0)
             {
-                CmbFlashPort.Items.Add("Aucun appareil détecté");
+                CmbFlashPort.Items.Add(Localization.T("NoDeviceFound"));
                 CmbFlashPort.SelectedIndex = 0;
                 return;
             }
@@ -189,7 +253,7 @@ namespace PneumaticCalibratorSimHub
             }
             if (port == null)
             {
-                LblStatus.Content = "● Arduino introuvable";
+                LblStatus.Content = Localization.T("Status.NotFound");
                 LblStatus.Foreground = Brushes.OrangeRed;
                 return;
             }
@@ -201,25 +265,29 @@ namespace PneumaticCalibratorSimHub
             }
             catch (Exception ex)
             {
-                LblStatus.Content = $"● Erreur : {ex.Message}";
+                LblStatus.Content = Localization.T("Status.Error", ex.Message);
                 LblStatus.Foreground = Brushes.OrangeRed;
             }
         }
 
         private void SetConnectedUi(string port)
         {
-            LblStatus.Content = $"● Connecté   {port}";
+            _isConnected = true;
+            _connectedPort = port;
+            LblStatus.Content = Localization.T("Status.Connected", port);
             LblStatus.Foreground = new SolidColorBrush(Color.FromRgb(34, 197, 94));
-            BtnConnect.Content = "Déconnecter";
+            BtnConnect.Content = Localization.T("Disconnect");
             ChannelsGrid.Visibility = Visibility.Visible;
             foreach (var p in _panels) p.SetEnabledForConnection(true);
         }
 
         private void OnDisconnected()
         {
-            LblStatus.Content = "● Déconnecté";
+            _isConnected = false;
+            _connectedPort = null;
+            LblStatus.Content = Localization.T("Status.Disconnected");
             LblStatus.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68));
-            BtnConnect.Content = "Connecter";
+            BtnConnect.Content = Localization.T("Connect");
             ChannelsGrid.Visibility = Visibility.Collapsed;
             for (int ch = 0; ch < _panels.Length; ch++)
             {
@@ -236,11 +304,8 @@ namespace PneumaticCalibratorSimHub
             if (_flashing) return;
 
             var confirm = MessageBox.Show(
-                "Le firmware de la pédale va être reflashé.\n\n" +
-                "⚠ Attention : cette opération efface définitivement tout programme actuellement installé sur l'Arduino. " +
-                "Elle est irréversible et le programme existant ne pourra pas être récupéré.\n\n" +
-                "Ne débranche pas l'appareil pendant l'opération (environ 15 secondes).\n\nContinuer ?",
-                "Flasher le firmware", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                Localization.T("Flash.ConfirmBody"),
+                Localization.T("Flash.ConfirmTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (confirm != MessageBoxResult.Yes) return;
 
             string port = SelectedFlashPort();
@@ -251,7 +316,7 @@ namespace PneumaticCalibratorSimHub
             }
             if (port == null)
             {
-                MessageBox.Show("Aucun port Arduino détecté.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Localization.T("Flash.NoPortBody"), Localization.T("Flash.NoPortTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -260,14 +325,14 @@ namespace PneumaticCalibratorSimHub
 
             _flashing = true;
             BtnFlash.IsEnabled = false;
-            BtnFlash.Content = "FLASH EN COURS...";
+            BtnFlash.Content = Localization.T("Flash.ButtonInProgress");
             AppendLog("=== Flash firmware démarré ===");
 
             try
             {
                 await FirmwareFlasher.FlashAsync(port, line => Dispatcher.Invoke(() => AppendLog(line)));
                 AppendLog("=== Flash terminé avec succès ===");
-                MessageBox.Show("Firmware flashé avec succès.", "Succès", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(Localization.T("Flash.SuccessBody"), Localization.T("Flash.SuccessTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
 
                 await Task.Delay(1500);
                 try { _serial.Connect(port); SetConnectedUi(port); } catch { }
@@ -275,18 +340,19 @@ namespace PneumaticCalibratorSimHub
             catch (Exception ex)
             {
                 AppendLog($"=== ERREUR : {ex.Message} ===");
-                MessageBox.Show($"Échec du flash :\n{ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(Localization.T("Flash.FailBody", ex.Message), Localization.T("Flash.FailTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
                 _flashing = false;
                 BtnFlash.IsEnabled = true;
-                BtnFlash.Content = "⚡ Flasher firmware";
+                BtnFlash.Content = Localization.T("Flash.Button");
             }
         }
 
         public void Shutdown()
         {
+            Localization.LanguageChanged -= ApplyLocalization;
             _scopeTimer?.Stop();
             _serial.Disconnect();
         }

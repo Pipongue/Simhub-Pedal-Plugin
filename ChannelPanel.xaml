@@ -7,11 +7,11 @@
         <StackPanel>
             <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8"/>
 
-            <TextBlock Text="RAW" FontSize="10" Opacity="0.8"/>
+            <TextBlock x:Name="LblRaw" Text="RAW" FontSize="10" Opacity="0.8"/>
             <TextBlock x:Name="LblRawVal" Text="—" FontSize="10" HorizontalAlignment="Right" Margin="0,-14,0,0"/>
             <ProgressBar x:Name="BarRaw" Height="8" Margin="0,2,0,6" Minimum="0" Maximum="1023"/>
 
-            <TextBlock Text="OUTPUT" FontSize="10" FontWeight="Bold"/>
+            <TextBlock x:Name="LblOutput" Text="OUTPUT" FontSize="10" FontWeight="Bold"/>
             <TextBlock x:Name="LblOutVal" Text="—" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,-14,0,0"/>
             <ProgressBar x:Name="BarOut" Height="8" Margin="0,2,0,8" Minimum="0" Maximum="1023"/>
 
