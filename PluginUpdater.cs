@@ -32,36 +32,54 @@ namespace PneumaticCalibratorSimHub
             using (var http = new HttpClient())
             {
                 http.DefaultRequestHeaders.UserAgent.ParseAdd("PneumaticCalibratorSimHub-Updater");
-                string url = $"https://api.github.com/repos/{GitHubOwnerRepo}/releases/latest";
+                // On liste TOUTES les releases (pas /releases/latest, qui exclut les pre-releases
+                // par défaut côté API GitHub) et on prend la version la plus haute manuellement.
+                string url = $"https://api.github.com/repos/{GitHubOwnerRepo}/releases";
                 string json = await http.GetStringAsync(url).ConfigureAwait(false);
 
                 var serializer = new JavaScriptSerializer();
-                var root = serializer.Deserialize<Dictionary<string, object>>(json);
+                var releases = serializer.Deserialize<object[]>(json);
+                if (releases == null) return null;
 
-                string tag = root.TryGetValue("tag_name", out var tagObj) ? tagObj as string : null;
-                if (string.IsNullOrEmpty(tag)) return null;
-                string versionStr = tag.TrimStart('v', 'V');
+                Version bestVersion = null;
+                string bestVersionStr = null;
+                string bestDownloadUrl = null;
 
-                if (!Version.TryParse(versionStr, out var remoteVersion)) return null;
-                if (remoteVersion <= CurrentVersion) return null;
-
-                string downloadUrl = null;
-                if (root.TryGetValue("assets", out var assetsObj) && assetsObj is object[] assets)
+                foreach (var releaseObj in releases)
                 {
-                    foreach (var assetObj in assets)
+                    if (!(releaseObj is Dictionary<string, object> release)) continue;
+                    if (release.TryGetValue("draft", out var draftObj) && draftObj is bool draft && draft) continue;
+
+                    string tag = release.TryGetValue("tag_name", out var tagObj) ? tagObj as string : null;
+                    if (string.IsNullOrEmpty(tag)) continue;
+                    string versionStr = tag.TrimStart('v', 'V');
+                    if (!Version.TryParse(versionStr, out var remoteVersion)) continue;
+                    if (remoteVersion <= CurrentVersion) continue;
+                    if (bestVersion != null && remoteVersion <= bestVersion) continue;
+
+                    string downloadUrl = null;
+                    if (release.TryGetValue("assets", out var assetsObj) && assetsObj is object[] assets)
                     {
-                        if (!(assetObj is Dictionary<string, object> asset)) continue;
-                        string name = asset.TryGetValue("name", out var n) ? n as string : null;
-                        if (name != null && name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                        foreach (var assetObj in assets)
                         {
-                            downloadUrl = asset.TryGetValue("browser_download_url", out var u) ? u as string : null;
-                            break;
+                            if (!(assetObj is Dictionary<string, object> asset)) continue;
+                            string name = asset.TryGetValue("name", out var n) ? n as string : null;
+                            if (name != null && name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                            {
+                                downloadUrl = asset.TryGetValue("browser_download_url", out var u) ? u as string : null;
+                                break;
+                            }
                         }
                     }
-                }
-                if (downloadUrl == null) return null;
+                    if (downloadUrl == null) continue;
 
-                return new UpdateInfo { Version = versionStr, DownloadUrl = downloadUrl };
+                    bestVersion = remoteVersion;
+                    bestVersionStr = versionStr;
+                    bestDownloadUrl = downloadUrl;
+                }
+
+                if (bestVersion == null) return null;
+                return new UpdateInfo { Version = bestVersionStr, DownloadUrl = bestDownloadUrl };
             }
         }
 
