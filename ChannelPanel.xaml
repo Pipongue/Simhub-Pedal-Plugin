@@ -8,7 +8,8 @@
         <StackPanel Margin="0,0,8,0">
             <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8" Visibility="Collapsed"/>
 
-            <ComboBox x:Name="CmbFunction" Width="150" HorizontalAlignment="Left" Margin="0,0,0,8" Visibility="Collapsed" SelectionChanged="CmbFunction_SelectionChanged"/>
+            <ComboBox x:Name="CmbFunction" Width="150" HorizontalAlignment="Left" FontWeight="Bold" Padding="4,2"
+                      Margin="0,-6,0,8" Visibility="Collapsed" SelectionChanged="CmbFunction_SelectionChanged"/>
 
             <TextBlock x:Name="LblRaw" Text="RAW" FontSize="13" Opacity="0.8"/>
             <TextBlock x:Name="LblRawVal" Text="—" FontSize="13" HorizontalAlignment="Right" Margin="0,-18,0,0"/>
