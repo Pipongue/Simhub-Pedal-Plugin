@@ -30,7 +30,7 @@
                     </Border>
 
                     <!-- Masqué tant qu'on n'est pas connecté : rien de pertinent à calibrer -->
-                    <UniformGrid x:Name="ChannelsGrid" Rows="1" Visibility="Collapsed">
+                    <UniformGrid x:Name="ChannelsGrid" Rows="2" Visibility="Collapsed">
                         <local:ChannelPanel x:Name="Panel0"/>
                         <local:ChannelPanel x:Name="Panel1"/>
                         <local:ChannelPanel x:Name="Panel2"/>

@@ -83,7 +83,7 @@ namespace PneumaticCalibratorSimHub
         public void SetVisible(bool visible)
         {
             // Le UniformGrid parent recalcule ses colonnes en fonction des enfants visibles
-            // (Rows="1" fixe), donc les colonnes restantes se redimensionnent automatiquement.
+            // (Rows="2" fixe), donc la grille se réorganise automatiquement.
             Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         }
 
