@@ -5,7 +5,7 @@
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins">
     <Border BorderBrush="#3D808080" BorderThickness="1" CornerRadius="8" Background="#14FFFFFF" Margin="4" Padding="2">
     <styles:SHSubSection x:Name="RootSection" Title="Canal">
-        <StackPanel>
+        <StackPanel Margin="0,0,8,0">
             <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8"/>
 
             <TextBlock x:Name="LblRaw" Text="RAW" FontSize="10" Opacity="0.8"/>
