@@ -47,7 +47,7 @@ namespace PneumaticCalibratorSimHub
             _serial.ChannelConnectivityChanged += (ch, conn) => Dispatcher.Invoke(() => OnChannelConnectivityChanged(ch, conn));
             _serial.Disconnected += () => Dispatcher.Invoke(OnDisconnected);
 
-            _scopeTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(33) };
+            _scopeTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(47) };
             _scopeTimer.Tick += (s, e) => { foreach (var p in _panels) p.OnScopeTick(); };
             _scopeTimer.Start();
 
