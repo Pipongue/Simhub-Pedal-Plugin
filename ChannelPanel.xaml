@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins"
              xmlns:ui="clr-namespace:SimHub.Plugins.UI;assembly=SimHub.Plugins">
-    <styles:SHSubSection x:Name="RootSection" Title="Canal" Margin="3">
+    <Border BorderBrush="#3D808080" BorderThickness="1" CornerRadius="8" Background="#14FFFFFF" Margin="4" Padding="2">
+    <styles:SHSubSection x:Name="RootSection" Title="Canal">
         <StackPanel>
             <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8"/>
 
@@ -37,4 +38,5 @@
                                    LowerValue="2" UpperValue="98" IsEnabled="False"/>
         </StackPanel>
     </styles:SHSubSection>
+    </Border>
 </UserControl>
