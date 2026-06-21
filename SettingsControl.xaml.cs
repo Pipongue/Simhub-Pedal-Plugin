@@ -114,6 +114,8 @@ namespace PneumaticCalibratorSimHub
             LblStatus.Content = _isConnected
                 ? Localization.T("Status.Connected", _connectedPort)
                 : Localization.T("Status.Disconnected");
+            TxtNoDeviceHint.Text = Localization.T("Calibration.NoDeviceHint");
+            BorderNoDeviceHint.Visibility = _isConnected ? Visibility.Collapsed : Visibility.Visible;
 
             RunFlashWarningTitle.Text = Localization.T("Flash.Warning");
             RunFlashWarningBody.Text = Localization.T("Flash.WarningBody");
@@ -399,6 +401,7 @@ namespace PneumaticCalibratorSimHub
             LblStatus.Content = Localization.T("Status.Connected", port);
             LblStatus.Foreground = new SolidColorBrush(Color.FromRgb(34, 197, 94));
             BtnConnect.Content = Localization.T("Disconnect");
+            BorderNoDeviceHint.Visibility = Visibility.Collapsed;
             ChannelsGrid.Visibility = Visibility.Visible;
             foreach (var p in _panels) p.SetEnabledForConnection(true);
         }
@@ -410,6 +413,7 @@ namespace PneumaticCalibratorSimHub
             LblStatus.Content = Localization.T("Status.Disconnected");
             LblStatus.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68));
             BtnConnect.Content = Localization.T("Connect");
+            BorderNoDeviceHint.Visibility = Visibility.Visible;
             ChannelsGrid.Visibility = Visibility.Collapsed;
             for (int ch = 0; ch < _panels.Length; ch++)
             {

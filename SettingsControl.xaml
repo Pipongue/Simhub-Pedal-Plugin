@@ -25,6 +25,10 @@
 
                     <Label x:Name="LblStatus" Content="● Déconnecté" Margin="0,0,0,10" FontWeight="Bold"/>
 
+                    <Border x:Name="BorderNoDeviceHint" Background="#332A1A1A" BorderBrush="#E8862C" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,12">
+                        <TextBlock x:Name="TxtNoDeviceHint" TextWrapping="Wrap" FontSize="11"/>
+                    </Border>
+
                     <!-- Masqué tant qu'on n'est pas connecté : rien de pertinent à calibrer -->
                     <UniformGrid x:Name="ChannelsGrid" Rows="1" Visibility="Collapsed">
                         <local:ChannelPanel x:Name="Panel0"/>

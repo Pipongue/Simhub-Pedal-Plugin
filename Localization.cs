@@ -58,6 +58,8 @@ namespace PneumaticCalibratorSimHub
             ["Status.Error"] = ("● Erreur : {0}", "● Error: {0}"),
             ["Status.NotFound"] = ("● Arduino introuvable", "● Arduino not found"),
             ["NoDeviceFound"] = ("Aucun appareil détecté", "No device found"),
+            ["Calibration.NoDeviceHint"] = ("Si votre Arduino n'apparaît pas dans la liste, il doit d'abord être flashé avec le firmware de ce plugin (onglet Flash). La calibration ne fonctionne qu'avec ce firmware, pas avec un firmware tiers.",
+                                              "If your Arduino doesn't appear in the list, it must first be flashed with this plugin's firmware (Flash tab). Calibration only works with this firmware, not with third-party firmware."),
 
             ["Channel.Handbrake"] = ("Frein à main", "Handbrake"),
             ["Channel.Throttle"] = ("Accélérateur", "Throttle"),
