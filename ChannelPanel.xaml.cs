@@ -57,10 +57,7 @@ namespace PneumaticCalibratorSimHub
 
         public void ApplyLocalization(string name)
         {
-            // En mode personnalisé, le menu déroulant tient la place du titre (le séparateur
-            // de SHSubSection reste affiché même avec un titre vide) pour éviter le doublon
-            // d'affichage entre le titre et le menu déroulant.
-            RootSection.Title = _customMode ? null : name;
+            LblTitle.Text = name;
             LblRaw.Text = Localization.T("Raw");
             LblOutput.Text = Localization.T("Output");
             BtnSetMin.Content = Localization.T("SetMin");
@@ -72,7 +69,7 @@ namespace PneumaticCalibratorSimHub
         {
             _customMode = show;
             CmbFunction.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            RootSection.Title = show ? null : RootSection.Title;
+            LblTitle.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public void RefreshFunctionOptions()
