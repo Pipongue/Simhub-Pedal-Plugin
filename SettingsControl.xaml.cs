@@ -21,6 +21,10 @@ namespace PneumaticCalibratorSimHub
         private string _connectedPort;
         private bool _suppressLangEvent;
 
+        private enum VersionState { Unknown, Dev, UpToDate, Outdated }
+        private VersionState _versionState = VersionState.Unknown;
+        private bool _devBuildStatusShown;
+
         public SettingsControl()
         {
             Localization.Load();
@@ -47,6 +51,57 @@ namespace PneumaticCalibratorSimHub
 
             Localization.LanguageChanged += ApplyLocalization;
             ApplyLocalization();
+
+            _ = RefreshVersionStatusAsync();
+        }
+
+        private async Task RefreshVersionStatusAsync()
+        {
+            if (PluginUpdater.IsRunningDevBuild)
+            {
+                _versionState = VersionState.Dev;
+                ApplyVersionArrowText();
+                return;
+            }
+            try
+            {
+                var update = await PluginUpdater.CheckForUpdateAsync();
+                _pendingUpdate = update;
+                _versionState = update != null ? VersionState.Outdated : VersionState.UpToDate;
+                ApplyVersionArrowText();
+            }
+            catch { }
+        }
+
+        private void ApplyVersionArrowText()
+        {
+            LblVersionTop.Text = Localization.T("Version.Label", PluginUpdater.CurrentVersion);
+            LblVersionArrow.Visibility = Visibility.Collapsed;
+            BtnDownloadTop.Visibility = Visibility.Collapsed;
+            BtnRevertTop.Visibility = Visibility.Collapsed;
+            LblVersionTop.Foreground = Brushes.White;
+
+            switch (_versionState)
+            {
+                case VersionState.Dev:
+                    LblVersionArrow.Visibility = Visibility.Visible;
+                    LblVersionArrow.Text = Localization.T("Version.DevBadge");
+                    LblVersionArrow.Foreground = new SolidColorBrush(Color.FromRgb(245, 158, 11));
+                    BtnRevertTop.Visibility = Visibility.Visible;
+                    break;
+                case VersionState.Outdated:
+                    LblVersionArrow.Visibility = Visibility.Visible;
+                    LblVersionArrow.Text = Localization.T("Version.NewAvailable", _pendingUpdate?.Version);
+                    LblVersionArrow.Foreground = new SolidColorBrush(Color.FromRgb(239, 68, 68));
+                    BtnDownloadTop.Visibility = Visibility.Visible;
+                    break;
+                case VersionState.UpToDate:
+                    LblVersionTop.Foreground = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                    break;
+            }
+
+            if (_devBuildStatusShown)
+                LblUpdateStatus.Text = Localization.T("Settings.DevBuildStatus", PluginUpdater.CurrentVersion);
         }
 
         private void ApplyLocalization()
@@ -94,13 +149,16 @@ namespace PneumaticCalibratorSimHub
             CmbLanguage.SelectedIndex = Localization.Current == Lang.En ? 1 : 0;
             _suppressLangEvent = false;
             SecUpdate.Title = Localization.T("Settings.Update");
-            LblCurrentVersion.Text = Localization.T("Settings.CurrentVersion", PluginUpdater.CurrentVersion);
             BtnCheckUpdate.Content = Localization.T("Settings.CheckUpdate");
-            BtnInstallUpdate.Content = Localization.T("Settings.DownloadInstall");
+            BtnDownloadTop.Content = Localization.T("Settings.Download");
+            BtnRevertTop.Content = Localization.T("Settings.RevertStable");
+            BtnRevertStable.Content = Localization.T("Settings.RevertStable");
             SecLog.Title = Localization.T("Settings.Log");
 
             for (int ch = 0; ch < _panels.Length; ch++)
                 _panels[ch].ApplyLocalization(PedalSerial.ChannelNames[ch]);
+
+            ApplyVersionArrowText();
         }
 
         private void CmbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -116,7 +174,6 @@ namespace PneumaticCalibratorSimHub
             BtnCheckUpdate.IsEnabled = false;
             LblUpdateStatus.Visibility = Visibility.Visible;
             LblUpdateStatus.Text = Localization.T("Settings.Checking");
-            BtnInstallUpdate.Visibility = Visibility.Collapsed;
             _pendingUpdate = null;
 
             try
@@ -124,17 +181,38 @@ namespace PneumaticCalibratorSimHub
                 var update = await PluginUpdater.CheckForUpdateAsync();
                 if (update == null)
                 {
-                    LblUpdateStatus.Text = Localization.T("Settings.UpToDate");
+                    _devBuildStatusShown = PluginUpdater.IsRunningDevBuild;
+                    LblUpdateStatus.Text = PluginUpdater.IsRunningDevBuild
+                        ? Localization.T("Settings.DevBuildStatus", PluginUpdater.CurrentVersion)
+                        : Localization.T("Settings.UpToDate");
+                    _versionState = PluginUpdater.IsRunningDevBuild ? VersionState.Dev : VersionState.UpToDate;
+                    ApplyVersionArrowText();
+
+                    if (PluginUpdater.IsRunningDevBuild)
+                    {
+                        var stable = await PluginUpdater.GetLatestStableReleaseAsync();
+                        if (stable != null)
+                        {
+                            var confirm = MessageBox.Show(
+                                Localization.T("Settings.NotStableBody", PluginUpdater.CurrentVersion, stable.Version),
+                                Localization.T("Settings.NotStableTitle"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                            if (confirm == MessageBoxResult.Yes)
+                                await RevertToStableAsync(stable);
+                        }
+                    }
                 }
                 else
                 {
+                    _devBuildStatusShown = false;
                     _pendingUpdate = update;
                     LblUpdateStatus.Text = Localization.T("Settings.NewVersion", update.Version);
-                    BtnInstallUpdate.Visibility = Visibility.Visible;
+                    _versionState = VersionState.Outdated;
+                    ApplyVersionArrowText();
                 }
             }
             catch (Exception ex)
             {
+                _devBuildStatusShown = false;
                 LblUpdateStatus.Text = Localization.T("Settings.CheckFailed", ex.Message);
                 AppendLog($"[update] échec vérification : {ex.Message}");
             }
@@ -142,6 +220,48 @@ namespace PneumaticCalibratorSimHub
             {
                 _checkingUpdate = false;
                 BtnCheckUpdate.IsEnabled = true;
+            }
+        }
+
+        private async void BtnRevertStable_Click(object sender, RoutedEventArgs e)
+        {
+            BtnRevertStable.IsEnabled = false;
+            BtnRevertTop.IsEnabled = false;
+            try
+            {
+                var stable = await PluginUpdater.GetLatestStableReleaseAsync();
+                if (stable == null)
+                {
+                    MessageBox.Show(Localization.T("Settings.NoStableFound"), Localization.T("Settings.ConfirmRevertTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                var confirm = MessageBox.Show(
+                    Localization.T("Settings.ConfirmRevertBody", stable.Version, PluginUpdater.CurrentVersion),
+                    Localization.T("Settings.ConfirmRevertTitle"), MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (confirm != MessageBoxResult.Yes) return;
+
+                await RevertToStableAsync(stable);
+            }
+            finally
+            {
+                BtnRevertStable.IsEnabled = true;
+                BtnRevertTop.IsEnabled = true;
+            }
+        }
+
+        private async Task RevertToStableAsync(PluginUpdater.UpdateInfo stable)
+        {
+            try
+            {
+                await PluginUpdater.DownloadAndScheduleInstallAsync(stable, line => Dispatcher.Invoke(() => AppendLog(line)));
+                LblUpdateStatus.Visibility = Visibility.Visible;
+                LblUpdateStatus.Text = Localization.T("Settings.RevertReady", stable.Version);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(Localization.T("Settings.DownloadFailedBody", ex.Message), Localization.T("Settings.DownloadFailedTitle"), MessageBoxButton.OK, MessageBoxImage.Error);
+                AppendLog($"[update] échec téléchargement : {ex.Message}");
             }
         }
 
@@ -154,13 +274,15 @@ namespace PneumaticCalibratorSimHub
                 Localization.T("Settings.ConfirmInstallTitle"), MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
-            BtnInstallUpdate.IsEnabled = false;
+            BtnDownloadTop.IsEnabled = false;
             try
             {
                 await PluginUpdater.DownloadAndScheduleInstallAsync(_pendingUpdate, line => Dispatcher.Invoke(() => AppendLog(line)));
+                LblUpdateStatus.Visibility = Visibility.Visible;
                 LblUpdateStatus.Text = Localization.T("Settings.UpdateReady", _pendingUpdate.Version);
-                BtnInstallUpdate.Visibility = Visibility.Collapsed;
+                BtnDownloadTop.Visibility = Visibility.Collapsed;
                 _pendingUpdate = null;
+                _versionState = VersionState.Unknown;
             }
             catch (Exception ex)
             {
@@ -169,7 +291,7 @@ namespace PneumaticCalibratorSimHub
             }
             finally
             {
-                BtnInstallUpdate.IsEnabled = true;
+                BtnDownloadTop.IsEnabled = true;
             }
         }
 

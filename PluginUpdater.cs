@@ -27,23 +27,24 @@ namespace PneumaticCalibratorSimHub
         public static Version CurrentVersion =>
             Assembly.GetExecutingAssembly().GetName().Version;
 
-        public static async Task<UpdateInfo> CheckForUpdateAsync()
+        // Le 4ème chiffre (Revision) n'est incrémenté que pour des builds locaux entre deux
+        // publications GitHub ; une version réellement publiée a toujours Revision == 0.
+        public static bool IsRunningDevBuild => CurrentVersion.Revision > 0;
+
+        private static async Task<List<(Version Version, string VersionStr, string DownloadUrl)>> GetReleasesAsync()
         {
+            var result = new List<(Version Version, string VersionStr, string DownloadUrl)>();
             using (var http = new HttpClient())
             {
                 http.DefaultRequestHeaders.UserAgent.ParseAdd("PneumaticCalibratorSimHub-Updater");
                 // On liste TOUTES les releases (pas /releases/latest, qui exclut les pre-releases
-                // par défaut côté API GitHub) et on prend la version la plus haute manuellement.
+                // par défaut côté API GitHub).
                 string url = $"https://api.github.com/repos/{GitHubOwnerRepo}/releases";
                 string json = await http.GetStringAsync(url).ConfigureAwait(false);
 
                 var serializer = new JavaScriptSerializer();
                 var releases = serializer.Deserialize<object[]>(json);
-                if (releases == null) return null;
-
-                Version bestVersion = null;
-                string bestVersionStr = null;
-                string bestDownloadUrl = null;
+                if (releases == null) return result;
 
                 foreach (var releaseObj in releases)
                 {
@@ -54,8 +55,6 @@ namespace PneumaticCalibratorSimHub
                     if (string.IsNullOrEmpty(tag)) continue;
                     string versionStr = tag.TrimStart('v', 'V');
                     if (!Version.TryParse(versionStr, out var remoteVersion)) continue;
-                    if (remoteVersion <= CurrentVersion) continue;
-                    if (bestVersion != null && remoteVersion <= bestVersion) continue;
 
                     string downloadUrl = null;
                     if (release.TryGetValue("assets", out var assetsObj) && assetsObj is object[] assets)
@@ -73,19 +72,59 @@ namespace PneumaticCalibratorSimHub
                     }
                     if (downloadUrl == null) continue;
 
-                    bestVersion = remoteVersion;
-                    bestVersionStr = versionStr;
-                    bestDownloadUrl = downloadUrl;
+                    result.Add((remoteVersion, versionStr, downloadUrl));
                 }
-
-                if (bestVersion == null) return null;
-                return new UpdateInfo { Version = bestVersionStr, DownloadUrl = bestDownloadUrl };
             }
+            return result;
+        }
+
+        public static async Task<UpdateInfo> CheckForUpdateAsync()
+        {
+            var releases = await GetReleasesAsync().ConfigureAwait(false);
+
+            Version bestVersion = null;
+            string bestVersionStr = null;
+            string bestDownloadUrl = null;
+            foreach (var (version, versionStr, downloadUrl) in releases)
+            {
+                if (version <= CurrentVersion) continue;
+                if (bestVersion != null && version <= bestVersion) continue;
+                bestVersion = version;
+                bestVersionStr = versionStr;
+                bestDownloadUrl = downloadUrl;
+            }
+
+            if (bestVersion == null) return null;
+            return new UpdateInfo { Version = bestVersionStr, DownloadUrl = bestDownloadUrl };
         }
 
         /// <summary>
-        /// Télécharge la mise à jour et programme son installation à la prochaine fermeture
-        /// de SimHub (un script détaché attend que le process libère le fichier).
+        /// Renvoie la version stable (publiée sur GitHub) la plus haute, peu importe qu'elle
+        /// soit plus récente ou plus ancienne que la version actuellement chargée. Utilisé pour
+        /// proposer un retour en arrière depuis un build de développement (Revision > 0).
+        /// </summary>
+        public static async Task<UpdateInfo> GetLatestStableReleaseAsync()
+        {
+            var releases = await GetReleasesAsync().ConfigureAwait(false);
+
+            Version bestVersion = null;
+            string bestVersionStr = null;
+            string bestDownloadUrl = null;
+            foreach (var (version, versionStr, downloadUrl) in releases)
+            {
+                if (bestVersion != null && version <= bestVersion) continue;
+                bestVersion = version;
+                bestVersionStr = versionStr;
+                bestDownloadUrl = downloadUrl;
+            }
+
+            if (bestVersion == null) return null;
+            return new UpdateInfo { Version = bestVersionStr, DownloadUrl = bestDownloadUrl };
+        }
+
+        /// <summary>
+        /// Télécharge la mise à jour (ou la version stable choisie) et programme son installation
+        /// à la prochaine fermeture de SimHub (un script détaché attend que le process libère le fichier).
         /// </summary>
         public static async Task DownloadAndScheduleInstallAsync(UpdateInfo update, Action<string> log)
         {

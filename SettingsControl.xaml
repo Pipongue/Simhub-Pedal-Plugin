@@ -3,7 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PneumaticCalibratorSimHub"
              xmlns:styles="clr-namespace:SimHub.Plugins.Styles;assembly=SimHub.Plugins">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,6,10,6">
+            <TextBlock x:Name="LblVersionTop" Text="Version : 0.0.0" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <TextBlock x:Name="LblVersionArrow" VerticalAlignment="Center" FontWeight="Bold" Margin="0,0,12,0" Visibility="Collapsed"/>
+            <styles:SHButtonPrimary x:Name="BtnDownloadTop" Content="Télécharger" Visibility="Collapsed" Click="BtnInstallUpdate_Click"/>
+            <styles:SHButtonSecondary x:Name="BtnRevertTop" Content="Revenir à la dernière version stable" Visibility="Collapsed" Click="BtnRevertStable_Click"/>
+        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
         <styles:SHTabControl>
             <styles:SHTabItem x:Name="TabCalibration" Header="Calibration">
                 <StackPanel Margin="10">
@@ -122,12 +129,11 @@
 
                     <styles:SHSection x:Name="SecUpdate" Title="MISE À JOUR">
                         <StackPanel>
-                            <TextBlock x:Name="LblCurrentVersion" Text="Version actuelle : —" Margin="0,0,0,8"/>
                             <styles:SHButtonSecondary x:Name="BtnCheckUpdate" Content="Vérifier les mises à jour"
                                                        HorizontalAlignment="Left" Margin="0,0,0,8" Click="BtnCheckUpdate_Click"/>
                             <TextBlock x:Name="LblUpdateStatus" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,8"/>
-                            <styles:SHButtonPrimary x:Name="BtnInstallUpdate" Content="Télécharger et installer"
-                                                     HorizontalAlignment="Left" Visibility="Collapsed" Click="BtnInstallUpdate_Click"/>
+                            <styles:SHButtonSecondary x:Name="BtnRevertStable" Content="Revenir à la dernière version stable"
+                                                       HorizontalAlignment="Left" Click="BtnRevertStable_Click"/>
                         </StackPanel>
                     </styles:SHSection>
 
@@ -138,5 +144,6 @@
                 </StackPanel>
             </styles:SHTabItem>
         </styles:SHTabControl>
-    </ScrollViewer>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>
