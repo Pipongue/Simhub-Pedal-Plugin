@@ -143,21 +143,37 @@ namespace PneumaticCalibratorSimHub
             log?.Invoke("Téléchargement terminé.");
 
             ScheduleSwapOnSimHubExit(dir, fileName, stagedPath);
-            log?.Invoke("Mise à jour programmée : elle s'appliquera à la prochaine fermeture de SimHub.");
+            log?.Invoke("Mise à jour téléchargée : SimHub va redémarrer automatiquement pour l'appliquer.");
+            RequestSimHubRestart();
+        }
+
+        /// <summary>
+        /// Demande la fermeture de la fenêtre principale de SimHub (équivalent à cliquer sur la
+        /// croix), pour que le script de mise à jour détaché puisse ensuite remplacer le DLL et
+        /// relancer SimHub sans action manuelle de l'utilisateur.
+        /// </summary>
+        private static void RequestSimHubRestart()
+        {
+            try { System.Diagnostics.Process.GetCurrentProcess().CloseMainWindow(); }
+            catch { }
         }
 
         private static void ScheduleSwapOnSimHubExit(string dir, string fileName, string stagedPath)
         {
-            int simHubPid = System.Diagnostics.Process.GetCurrentProcess().Id;
+            var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+            int simHubPid = currentProcess.Id;
+            string simHubExePath = currentProcess.MainModule.FileName;
+            string simHubWorkDir = Path.GetDirectoryName(simHubExePath);
             string targetPath = Path.Combine(dir, fileName);
 
-            // Script PowerShell détaché : attend que ce process SimHub se termine, puis
-            // remplace l'ancien DLL par la version téléchargée.
+            // Script PowerShell détaché : attend que ce process SimHub se termine, remplace
+            // l'ancien DLL par la version téléchargée, puis relance SimHub automatiquement.
             string script =
                 $"Wait-Process -Id {simHubPid} -ErrorAction SilentlyContinue; " +
                 $"Start-Sleep -Seconds 1; " +
                 $"Copy-Item -Path '{stagedPath}' -Destination '{targetPath}' -Force; " +
-                $"Remove-Item -Path '{stagedPath}' -Force -ErrorAction SilentlyContinue;";
+                $"Remove-Item -Path '{stagedPath}' -Force -ErrorAction SilentlyContinue; " +
+                $"Start-Process -FilePath '{simHubExePath}' -WorkingDirectory '{simHubWorkDir}';";
 
             var psi = new System.Diagnostics.ProcessStartInfo
             {
