@@ -175,6 +175,7 @@ namespace PneumaticCalibratorSimHub
             TxtPinA2.Text = Localization.T("Channel.Brake");
             TxtPinA3.Text = Localization.T("Channel.Clutch");
             TxtWiringNote.Text = Localization.T("Flash.WiringNote");
+            TxtWiringCustomAssignment.Text = Localization.T("Flash.WiringCustomAssignment");
             SecProcedure.Title = Localization.T("Flash.Procedure");
             TxtProcedureSteps.Text = Localization.T("Flash.ProcedureSteps");
             BtnFlash.Content = _flashing ? Localization.T("Flash.ButtonInProgress") : Localization.T("Flash.Button");

@@ -101,8 +101,11 @@
                                 <TextBlock Grid.Row="3" Grid.Column="0" Text="A3" FontWeight="Bold"/>
                                 <TextBlock x:Name="TxtPinA3" Grid.Row="3" Grid.Column="1" Text="Embrayage"/>
                             </Grid>
-                            <TextBlock x:Name="TxtWiringNote" TextWrapping="Wrap" Opacity="0.8" FontSize="11">
+                            <TextBlock x:Name="TxtWiringNote" TextWrapping="Wrap" Opacity="0.8" FontSize="11" Margin="0,0,0,6">
                                 Le signal du capteur va sur la broche analogique, l'alimentation et la masse sur 5V/GND. Une pin sans capteur branché est détectée automatiquement et sa colonne reste masquée dans l'onglet Calibration.
+                            </TextBlock>
+                            <TextBlock x:Name="TxtWiringCustomAssignment" TextWrapping="Wrap" Opacity="0.8" FontSize="11">
+                                Si tu as câblé tes capteurs différemment de ce schéma, désactive "Assignation par défaut" dans l'onglet Réglages : un menu déroulant apparaît alors sur chaque canal dans l'onglet Calibration pour choisir manuellement quelle fonction afficher et calibrer. Attention : cela ne change que l'étiquette affichée, pas l'axe réellement piloté dans le jeu (toujours fixé par le câblage physique ci-dessus).
                             </TextBlock>
                         </StackPanel>
                     </styles:SHSection>
