@@ -13,7 +13,7 @@
             <ProgressBar x:Name="BarRaw" Height="8" Margin="0,2,0,6" Minimum="0" Maximum="1023"/>
 
             <TextBlock x:Name="LblOutput" Text="OUTPUT" FontSize="13" FontWeight="Bold"/>
-            <TextBlock x:Name="LblOutVal" Text="—" FontSize="22" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,-24,0,0"/>
+            <TextBlock x:Name="LblOutVal" Text="—" FontSize="13" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,-18,0,0"/>
             <ProgressBar x:Name="BarOut" Height="18" Margin="0,2,0,8" Minimum="0" Maximum="1023"/>
 
             <Border BorderBrush="#40808080" BorderThickness="1" Height="60" Margin="0,0,0,8" ClipToBounds="True">
