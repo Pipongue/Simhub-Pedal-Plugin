@@ -124,13 +124,13 @@
                     <styles:SHSection x:Name="SecDevOptions" Title="OPTIONS DÉVELOPPEUR">
                         <StackPanel>
                             <styles:SHToggleCheckbox x:Name="ChkShowAllAxes"
-                                                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                                      Width="420" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
                                                       Checked="ChkShowAllAxes_Checked"
                                                       Unchecked="ChkShowAllAxes_Unchecked">
                                 Afficher tous les axes (même débranchés, dans l'onglet Calibration)
                             </styles:SHToggleCheckbox>
                             <styles:SHToggleCheckbox x:Name="ChkShowRawValue" Margin="0,8,0,0"
-                                                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                                                      Width="420" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
                                                       Checked="ChkShowRawValue_Checked"
                                                       Unchecked="ChkShowRawValue_Unchecked">
                                 Afficher la valeur brute du capteur
