@@ -46,17 +46,20 @@ namespace PneumaticCalibratorSimHub
             }
         }
 
+        private bool _customMode;
+
         public void Initialize(int channelIndex, string name, string pin)
         {
             ChannelIndex = channelIndex;
-            RootSection.Title = name;
             LblPin.Text = pin;
             ApplyLocalization(name);
         }
 
         public void ApplyLocalization(string name)
         {
-            RootSection.Title = name;
+            // En mode personnalisé, le menu déroulant affiche déjà la fonction assignée :
+            // le titre montre la pin physique à la place pour éviter le doublon d'affichage.
+            RootSection.Title = _customMode ? LblPin.Text : name;
             LblRaw.Text = Localization.T("Raw");
             LblOutput.Text = Localization.T("Output");
             BtnSetMin.Content = Localization.T("SetMin");
@@ -66,7 +69,9 @@ namespace PneumaticCalibratorSimHub
 
         public void SetFunctionSelectorVisible(bool show)
         {
+            _customMode = show;
             CmbFunction.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            RootSection.Title = show ? LblPin.Text : RootSection.Title;
         }
 
         public void RefreshFunctionOptions()
