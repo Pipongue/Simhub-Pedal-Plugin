@@ -26,7 +26,7 @@
                         <styles:SHButtonPrimary x:Name="BtnConnect" Grid.Column="1" Content="Connecter" Width="110" Click="BtnConnect_Click"/>
                     </Grid>
 
-                    <Label x:Name="LblStatus" Content="● Déconnecté" Margin="0,0,0,10" FontWeight="Bold"/>
+                    <Label x:Name="LblStatus" Content="● Déconnecté" Foreground="#EF4444" Margin="0,0,0,10" FontWeight="Bold"/>
 
                     <Border x:Name="BorderNoDeviceHint" Background="#332A1A1A" BorderBrush="#E8862C" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,12">
                         <TextBlock x:Name="TxtNoDeviceHint" TextWrapping="Wrap" FontSize="11"/>
