@@ -123,18 +123,14 @@
                 <StackPanel Margin="10">
                     <styles:SHSection x:Name="SecDevOptions" Title="OPTIONS DÉVELOPPEUR">
                         <StackPanel>
-                            <styles:SHToggleCheckbox x:Name="ChkShowAllAxes"
-                                                      Width="420" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
+                            <styles:SHToggleCheckbox x:Name="ChkShowAllAxes" Content="Afficher tous les axes (même débranchés, dans l'onglet Calibration)"
+                                                      Padding="0" Margin="0" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
                                                       Checked="ChkShowAllAxes_Checked"
-                                                      Unchecked="ChkShowAllAxes_Unchecked">
-                                Afficher tous les axes (même débranchés, dans l'onglet Calibration)
-                            </styles:SHToggleCheckbox>
-                            <styles:SHToggleCheckbox x:Name="ChkShowRawValue" Margin="0,8,0,0"
-                                                      Width="420" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
+                                                      Unchecked="ChkShowAllAxes_Unchecked"/>
+                            <styles:SHToggleCheckbox x:Name="ChkShowRawValue" Content="Afficher la valeur brute du capteur"
+                                                      Padding="0" Margin="0,8,0,0" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
                                                       Checked="ChkShowRawValue_Checked"
-                                                      Unchecked="ChkShowRawValue_Unchecked">
-                                Afficher la valeur brute du capteur
-                            </styles:SHToggleCheckbox>
+                                                      Unchecked="ChkShowRawValue_Unchecked"/>
                         </StackPanel>
                     </styles:SHSection>
 
