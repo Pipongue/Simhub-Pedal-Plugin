@@ -134,6 +134,16 @@
                         </StackPanel>
                     </styles:SHSection>
 
+                    <styles:SHSection x:Name="SecAxisAssignment" Title="ASSIGNATION DES AXES">
+                        <StackPanel>
+                            <styles:SHToggleCheckbox x:Name="ChkDefaultAssignment" Content="Assignation par défaut (A0 = Frein à main, A1 = Accélérateur, A2 = Frein, A3 = Embrayage)"
+                                                      Padding="0" Margin="0" HorizontalAlignment="Left" HorizontalContentAlignment="Left"
+                                                      Checked="ChkDefaultAssignment_Checked"
+                                                      Unchecked="ChkDefaultAssignment_Unchecked"/>
+                            <TextBlock x:Name="TxtAssignmentHint" TextWrapping="Wrap" Opacity="0.8" FontSize="11" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </styles:SHSection>
+
                     <styles:SHSection x:Name="SecLanguage" Title="LANGUE">
                         <ComboBox x:Name="CmbLanguage" Width="160" HorizontalAlignment="Left" SelectionChanged="CmbLanguage_SelectionChanged"/>
                     </styles:SHSection>

@@ -21,6 +21,7 @@ namespace PneumaticCalibratorSimHub
         private bool _isConnected;
         private string _connectedPort;
         private bool _suppressLangEvent;
+        private bool _suppressAssignmentEvent;
 
         private enum VersionState { Unknown, Dev, UpToDate, Outdated }
         private VersionState _versionState = VersionState.Unknown;
@@ -29,16 +30,20 @@ namespace PneumaticCalibratorSimHub
         public SettingsControl()
         {
             Localization.Load();
+            AxisAssignment.Load();
             InitializeComponent();
             _panels = new[] { Panel0, Panel1, Panel2, Panel3 };
             for (int ch = 0; ch < _panels.Length; ch++)
             {
-                _panels[ch].Initialize(ch, PedalSerial.ChannelNames[ch], PedalSerial.ChannelPins[ch]);
+                _panels[ch].Initialize(ch, AxisAssignment.GetFunctionName(ch), PedalSerial.ChannelPins[ch]);
                 _panels[ch].SetMinRequested += c => _serial.SetMin(c);
                 _panels[ch].SetMaxRequested += c => _serial.SetMax(c);
                 _panels[ch].DeadzoneMinChanged += (c, v) => _serial.SetDeadzoneMin(c, v);
                 _panels[ch].DeadzoneMaxChanged += (c, v) => _serial.SetDeadzoneMax(c, v);
+                _panels[ch].FunctionAssignmentChanged += OnFunctionAssignmentChanged;
                 _panels[ch].SetShowRaw(_showRawValue);
+                _panels[ch].SetFunctionSelectorVisible(!AxisAssignment.UseDefault);
+                _panels[ch].RefreshFunctionOptions();
             }
 
             _serial.Log += line => Dispatcher.Invoke(() => AppendLog(line));
@@ -51,10 +56,41 @@ namespace PneumaticCalibratorSimHub
             _scopeTimer.Tick += (s, e) => { foreach (var p in _panels) p.OnScopeTick(); };
             _scopeTimer.Start();
 
+            _suppressAssignmentEvent = true;
+            ChkDefaultAssignment.IsChecked = AxisAssignment.UseDefault;
+            _suppressAssignmentEvent = false;
+
             Localization.LanguageChanged += ApplyLocalization;
             ApplyLocalization();
 
             _ = RefreshVersionStatusAsync();
+        }
+
+        private void OnFunctionAssignmentChanged(int channel, int functionIndex)
+        {
+            AxisAssignment.SetFunction(channel, functionIndex);
+            RefreshChannelTitles();
+        }
+
+        private void RefreshChannelTitles()
+        {
+            for (int ch = 0; ch < _panels.Length; ch++)
+                _panels[ch].ApplyLocalization(AxisAssignment.GetFunctionName(ch));
+        }
+
+        private void ChkDefaultAssignment_Checked(object sender, RoutedEventArgs e) => SetUseDefaultAssignment(true);
+        private void ChkDefaultAssignment_Unchecked(object sender, RoutedEventArgs e) => SetUseDefaultAssignment(false);
+
+        private void SetUseDefaultAssignment(bool useDefault)
+        {
+            if (_suppressAssignmentEvent) return;
+            AxisAssignment.SetUseDefault(useDefault);
+            foreach (var p in _panels)
+            {
+                p.SetFunctionSelectorVisible(!useDefault);
+                p.RefreshFunctionOptions();
+            }
+            RefreshChannelTitles();
         }
 
         private async Task RefreshVersionStatusAsync()
@@ -146,6 +182,9 @@ namespace PneumaticCalibratorSimHub
             SecDevOptions.Title = Localization.T("Settings.DevOptions");
             ChkShowAllAxes.Content = Localization.T("Settings.ShowAllAxes");
             ChkShowRawValue.Content = Localization.T("Settings.ShowRawValue");
+            SecAxisAssignment.Title = Localization.T("Settings.AxisAssignment");
+            ChkDefaultAssignment.Content = Localization.T("Settings.DefaultAssignment");
+            TxtAssignmentHint.Text = Localization.T("Settings.AssignmentHint");
             SecLanguage.Title = Localization.T("Settings.Language");
             _suppressLangEvent = true;
             CmbLanguage.Items.Clear();
@@ -161,7 +200,10 @@ namespace PneumaticCalibratorSimHub
             SecLog.Title = Localization.T("Settings.Log");
 
             for (int ch = 0; ch < _panels.Length; ch++)
-                _panels[ch].ApplyLocalization(PedalSerial.ChannelNames[ch]);
+            {
+                _panels[ch].ApplyLocalization(AxisAssignment.GetFunctionName(ch));
+                _panels[ch].RefreshFunctionOptions();
+            }
 
             ApplyVersionArrowText();
         }

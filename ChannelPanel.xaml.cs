@@ -17,8 +17,10 @@ namespace PneumaticCalibratorSimHub
         public event Action<int> SetMaxRequested;
         public event Action<int, int> DeadzoneMinChanged; // ch, value
         public event Action<int, int> DeadzoneMaxChanged; // ch, value
+        public event Action<int, int> FunctionAssignmentChanged; // ch, functionIndex
 
         private bool _suppressDzEvents;
+        private bool _suppressFunctionEvent;
         private bool _connected = true;
 
         private const int MaxTracePoints = 120;
@@ -60,6 +62,27 @@ namespace PneumaticCalibratorSimHub
             BtnSetMin.Content = Localization.T("SetMin");
             BtnSetMax.Content = Localization.T("SetMax");
             DzSlider.Title = Localization.T("Deadzone");
+        }
+
+        public void SetFunctionSelectorVisible(bool show)
+        {
+            CmbFunction.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public void RefreshFunctionOptions()
+        {
+            _suppressFunctionEvent = true;
+            CmbFunction.Items.Clear();
+            foreach (var key in PedalSerial.ChannelNameKeys)
+                CmbFunction.Items.Add(Localization.T(key));
+            CmbFunction.SelectedIndex = AxisAssignment.FunctionForChannel[ChannelIndex];
+            _suppressFunctionEvent = false;
+        }
+
+        private void CmbFunction_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_suppressFunctionEvent || CmbFunction.SelectedIndex < 0) return;
+            FunctionAssignmentChanged?.Invoke(ChannelIndex, CmbFunction.SelectedIndex);
         }
 
         public void SetShowRaw(bool show)
