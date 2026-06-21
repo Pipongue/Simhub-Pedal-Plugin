@@ -62,6 +62,14 @@ namespace PneumaticCalibratorSimHub
             DzSlider.Title = Localization.T("Deadzone");
         }
 
+        public void SetShowRaw(bool show)
+        {
+            var visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            LblRaw.Visibility = visibility;
+            LblRawVal.Visibility = visibility;
+            BarRaw.Visibility = visibility;
+        }
+
         public void SetEnabledForConnection(bool connected)
         {
             BtnSetMin.IsEnabled = connected;

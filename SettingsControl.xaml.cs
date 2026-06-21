@@ -13,6 +13,7 @@ namespace PneumaticCalibratorSimHub
         private ChannelPanel[] _panels;
         private readonly bool[] _channelConnected = { true, true, true, true };
         private bool _showAllAxes;
+        private bool _showRawValue;
         private DispatcherTimer _scopeTimer;
         private bool _flashing;
         private PluginUpdater.UpdateInfo _pendingUpdate;
@@ -37,6 +38,7 @@ namespace PneumaticCalibratorSimHub
                 _panels[ch].SetMaxRequested += c => _serial.SetMax(c);
                 _panels[ch].DeadzoneMinChanged += (c, v) => _serial.SetDeadzoneMin(c, v);
                 _panels[ch].DeadzoneMaxChanged += (c, v) => _serial.SetDeadzoneMax(c, v);
+                _panels[ch].SetShowRaw(_showRawValue);
             }
 
             _serial.Log += line => Dispatcher.Invoke(() => AppendLog(line));
@@ -51,8 +53,6 @@ namespace PneumaticCalibratorSimHub
 
             Localization.LanguageChanged += ApplyLocalization;
             ApplyLocalization();
-
-            ImgLogo.Source = LogoLoader.Icon;
 
             _ = RefreshVersionStatusAsync();
         }
@@ -145,6 +145,7 @@ namespace PneumaticCalibratorSimHub
 
             SecDevOptions.Title = Localization.T("Settings.DevOptions");
             ChkShowAllAxes.Content = Localization.T("Settings.ShowAllAxes");
+            ChkShowRawValue.Content = Localization.T("Settings.ShowRawValue");
             SecLanguage.Title = Localization.T("Settings.Language");
             _suppressLangEvent = true;
             CmbLanguage.Items.Clear();
@@ -314,6 +315,15 @@ namespace PneumaticCalibratorSimHub
             _showAllAxes = show;
             for (int ch = 0; ch < _panels.Length; ch++)
                 _panels[ch].SetVisible(_channelConnected[ch] || _showAllAxes);
+        }
+
+        private void ChkShowRawValue_Checked(object sender, RoutedEventArgs e) => SetShowRawValue(true);
+        private void ChkShowRawValue_Unchecked(object sender, RoutedEventArgs e) => SetShowRawValue(false);
+
+        private void SetShowRawValue(bool show)
+        {
+            _showRawValue = show;
+            foreach (var p in _panels) p.SetShowRaw(show);
         }
 
         private void AppendLog(string line)

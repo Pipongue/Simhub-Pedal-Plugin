@@ -104,6 +104,7 @@ namespace PneumaticCalibratorSimHub
             ["Settings.DevOptions"] = ("OPTIONS DÉVELOPPEUR", "DEVELOPER OPTIONS"),
             ["Settings.ShowAllAxes"] = ("Afficher tous les axes (même débranchés, dans l'onglet Calibration)",
                                           "Show all axes (even disconnected, in the Calibration tab)"),
+            ["Settings.ShowRawValue"] = ("Afficher la valeur brute du capteur", "Show raw sensor value"),
             ["Settings.Language"] = ("LANGUE", "LANGUAGE"),
             ["Settings.LangFr"] = ("Français", "Français"),
             ["Settings.LangEn"] = ("English", "English"),
