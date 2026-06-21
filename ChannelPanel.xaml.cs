@@ -57,9 +57,10 @@ namespace PneumaticCalibratorSimHub
 
         public void ApplyLocalization(string name)
         {
-            // En mode personnalisé, le menu déroulant affiche déjà la fonction assignée :
-            // le titre montre la pin physique à la place pour éviter le doublon d'affichage.
-            RootSection.Title = _customMode ? LblPin.Text : name;
+            // En mode personnalisé, le menu déroulant tient la place du titre (le séparateur
+            // de SHSubSection reste affiché même avec un titre vide) pour éviter le doublon
+            // d'affichage entre le titre et le menu déroulant.
+            RootSection.Title = _customMode ? "" : name;
             LblRaw.Text = Localization.T("Raw");
             LblOutput.Text = Localization.T("Output");
             BtnSetMin.Content = Localization.T("SetMin");
@@ -71,7 +72,7 @@ namespace PneumaticCalibratorSimHub
         {
             _customMode = show;
             CmbFunction.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            RootSection.Title = show ? LblPin.Text : RootSection.Title;
+            RootSection.Title = show ? "" : RootSection.Title;
         }
 
         public void RefreshFunctionOptions()
