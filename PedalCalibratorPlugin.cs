@@ -12,7 +12,7 @@ namespace PneumaticCalibratorSimHub
 
         public string LeftMenuTitle => "Pneumatic Pedals";
 
-        public ImageSource PictureIcon => null;
+        public ImageSource PictureIcon => LogoLoader.Icon;
 
         private SettingsControl _control;
 

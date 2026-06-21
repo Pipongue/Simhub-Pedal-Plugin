@@ -52,6 +52,8 @@ namespace PneumaticCalibratorSimHub
             Localization.LanguageChanged += ApplyLocalization;
             ApplyLocalization();
 
+            ImgLogo.Source = LogoLoader.Icon;
+
             _ = RefreshVersionStatusAsync();
         }
 

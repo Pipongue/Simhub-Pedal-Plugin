@@ -7,9 +7,9 @@
 		<AssemblyName>PneumaticCalibratorSimHub</AssemblyName>
 		<RootNamespace>PneumaticCalibratorSimHub</RootNamespace>
 		<!-- Bump à chaque release (doit matcher le tag GitHub, ex: tag "v0.0.2" -> 0.0.2) -->
-		<Version>0.0.4.3</Version>
-		<AssemblyVersion>0.0.4.3</AssemblyVersion>
-		<FileVersion>0.0.4.3</FileVersion>
+		<Version>0.0.4.4</Version>
+		<AssemblyVersion>0.0.4.4</AssemblyVersion>
+		<FileVersion>0.0.4.4</FileVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Reference Include="SimHub.Plugins">
@@ -32,6 +32,7 @@
 		     dossier SimHub, pour que seule cette DLL ait besoin d'être téléchargée/installée. -->
 		<EmbeddedResource Include="Deps\System.IO.Ports.dll" />
 		<EmbeddedResource Include="Deps\System.CodeDom.dll" />
+		<EmbeddedResource Include="Assets\logo.png" />
 	</ItemGroup>
 
 	<!-- Copie automatique dans le dossier SimHub après chaque build, pour itérer rapidement
