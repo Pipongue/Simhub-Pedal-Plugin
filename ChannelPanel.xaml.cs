@@ -71,9 +71,7 @@ namespace PneumaticCalibratorSimHub
         public void SetFunctionSelectorVisible(bool show)
         {
             _customMode = show;
-            var visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            CmbFunction.Visibility = visibility;
-            BorderFunctionSeparator.Visibility = visibility;
+            CmbFunction.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
             RootSection.Title = show ? "" : RootSection.Title;
         }
 
