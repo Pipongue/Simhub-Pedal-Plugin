@@ -148,14 +148,19 @@ namespace PneumaticCalibratorSimHub
         }
 
         /// <summary>
-        /// Demande la fermeture de la fenêtre principale de SimHub (équivalent à cliquer sur la
-        /// croix), pour que le script de mise à jour détaché puisse ensuite remplacer le DLL et
-        /// relancer SimHub sans action manuelle de l'utilisateur.
+        /// Force la fermeture de SimHub pour que le script de mise à jour détaché puisse ensuite
+        /// remplacer le DLL et relancer SimHub sans action manuelle de l'utilisateur.
+        /// CloseMainWindow() ne suffit pas : SimHub intercepte le clic sur la croix et se réduit
+        /// dans la barre des tâches au lieu de quitter, donc on tue directement le process.
         /// </summary>
         private static void RequestSimHubRestart()
         {
-            try { System.Diagnostics.Process.GetCurrentProcess().CloseMainWindow(); }
-            catch { }
+            Task.Run(async () =>
+            {
+                await Task.Delay(800).ConfigureAwait(false);
+                try { System.Diagnostics.Process.GetCurrentProcess().Kill(); }
+                catch { }
+            });
         }
 
         private static void ScheduleSwapOnSimHubExit(string dir, string fileName, string stagedPath)
