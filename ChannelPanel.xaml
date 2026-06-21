@@ -6,15 +6,15 @@
     <Border BorderBrush="#3D808080" BorderThickness="1" CornerRadius="8" Background="#14FFFFFF" Margin="4" Padding="2">
     <styles:SHSubSection x:Name="RootSection" Title="Canal">
         <StackPanel Margin="0,0,8,0">
-            <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8"/>
+            <TextBlock x:Name="LblPin" Text="A0" FontSize="10" Opacity="0.6" Margin="0,0,0,8" Visibility="Collapsed"/>
 
-            <TextBlock x:Name="LblRaw" Text="RAW" FontSize="10" Opacity="0.8"/>
-            <TextBlock x:Name="LblRawVal" Text="—" FontSize="10" HorizontalAlignment="Right" Margin="0,-14,0,0"/>
+            <TextBlock x:Name="LblRaw" Text="RAW" FontSize="13" Opacity="0.8"/>
+            <TextBlock x:Name="LblRawVal" Text="—" FontSize="13" HorizontalAlignment="Right" Margin="0,-18,0,0"/>
             <ProgressBar x:Name="BarRaw" Height="8" Margin="0,2,0,6" Minimum="0" Maximum="1023"/>
 
-            <TextBlock x:Name="LblOutput" Text="OUTPUT" FontSize="10" FontWeight="Bold"/>
-            <TextBlock x:Name="LblOutVal" Text="—" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,-14,0,0"/>
-            <ProgressBar x:Name="BarOut" Height="8" Margin="0,2,0,8" Minimum="0" Maximum="1023"/>
+            <TextBlock x:Name="LblOutput" Text="OUTPUT" FontSize="13" FontWeight="Bold"/>
+            <TextBlock x:Name="LblOutVal" Text="—" FontSize="22" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,-24,0,0"/>
+            <ProgressBar x:Name="BarOut" Height="18" Margin="0,2,0,8" Minimum="0" Maximum="1023"/>
 
             <Border BorderBrush="#40808080" BorderThickness="1" Height="60" Margin="0,0,0,8" ClipToBounds="True">
                 <Canvas x:Name="ScopeCanvas" SizeChanged="ScopeCanvas_SizeChanged">

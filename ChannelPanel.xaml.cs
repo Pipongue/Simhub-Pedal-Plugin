@@ -98,7 +98,8 @@ namespace PneumaticCalibratorSimHub
         private void ZeroOut()
         {
             BarRaw.Value = 0; BarOut.Value = 0;
-            LblRawVal.Text = LblOutVal.Text = "0";
+            LblRawVal.Text = "0";
+            LblOutVal.Text = "0%";
             _trace.Clear();
             _latestOutput = 0;
             ScopeTrace.Points = new PointCollection();
@@ -119,7 +120,7 @@ namespace PneumaticCalibratorSimHub
             BarRaw.Value = raw;
             LblRawVal.Text = raw.ToString();
             BarOut.Value = output;
-            LblOutVal.Text = output.ToString();
+            LblOutVal.Text = $"{output * 100 / 1023}%";
             _latestOutput = output;
         }
 
