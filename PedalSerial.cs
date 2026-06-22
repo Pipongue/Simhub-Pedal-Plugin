@@ -99,6 +99,29 @@ namespace PneumaticCalibratorSimHub
             return result;
         }
 
+        /// <summary>
+        /// Ouvre puis referme brièvement le port série du premier Arduino détecté, sans passer
+        /// par l'UI de calibration. Reproduit ce qui se passe quand l'utilisateur clique
+        /// "Connecter" manuellement : certains utilisateurs observent que les axes HID restent
+        /// figés (non détectés par le jeu) jusqu'à ce que le panneau de calibration se connecte
+        /// une première fois. Appelé automatiquement au démarrage de SimHub pour ne pas dépendre
+        /// d'une action manuelle de l'utilisateur.
+        /// </summary>
+        public static void AutoConnectPulse()
+        {
+            try
+            {
+                var ports = ListArduinoPorts();
+                if (ports.Count == 0) return;
+                using (var p = new SerialPort(ports[0].Port, 115200) { ReadTimeout = 200, WriteTimeout = 250, DtrEnable = true })
+                {
+                    p.Open();
+                    Thread.Sleep(150);
+                }
+            }
+            catch { /* pas grave : l'utilisateur peut toujours connecter manuellement */ }
+        }
+
         public void Connect(string portName)
         {
             if (IsConnected) return;

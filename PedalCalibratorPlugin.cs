@@ -23,9 +23,19 @@ namespace PneumaticCalibratorSimHub
             DependencyBootstrapper.EnsureDependenciesExtracted();
             PluginManager = pluginManager;
 
-            // SimHub appelle End()/Init() à chaque changement de jeu, ce qui ferme puis tente de
-            // rouvrir la connexion du panneau de calibration. On la rétablit automatiquement ici.
-            _control?.Resume();
+            if (_control != null)
+            {
+                // SimHub appelle End()/Init() à chaque changement de jeu, ce qui ferme puis tente
+                // de rouvrir la connexion du panneau de calibration. On la rétablit automatiquement.
+                _control.Resume();
+            }
+            else
+            {
+                // Premier démarrage de SimHub, panneau de calibration jamais ouvert : on ouvre puis
+                // referme brièvement le port série en tâche de fond, pour éviter aux utilisateurs
+                // d'avoir à ouvrir le plugin manuellement avant que les axes soient pris en compte.
+                System.Threading.Tasks.Task.Run(() => PedalSerial.AutoConnectPulse());
+            }
         }
 
         public void End(PluginManager pluginManager)
