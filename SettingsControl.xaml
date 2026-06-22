@@ -119,6 +119,13 @@
                             <styles:SHButtonPrimary x:Name="BtnFlash" Content="⚡ Flasher firmware" HorizontalAlignment="Left" Click="BtnFlash_Click"/>
                         </StackPanel>
                     </styles:SHSection>
+
+                    <styles:SHSection x:Name="SecTroubleshooting" Title="DÉPANNAGE">
+                        <StackPanel>
+                            <TextBlock x:Name="TxtTroubleshootingFrozenAxesTitle" TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,4"/>
+                            <TextBlock x:Name="TxtTroubleshootingFrozenAxesBody" TextWrapping="Wrap" Opacity="0.85" FontSize="11"/>
+                        </StackPanel>
+                    </styles:SHSection>
                 </StackPanel>
             </styles:SHTabItem>
 

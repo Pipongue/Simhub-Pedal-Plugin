@@ -180,6 +180,9 @@ namespace PneumaticCalibratorSimHub
             SecProcedure.Title = Localization.T("Flash.Procedure");
             TxtProcedureSteps.Text = Localization.T("Flash.ProcedureSteps");
             BtnFlash.Content = _flashing ? Localization.T("Flash.ButtonInProgress") : Localization.T("Flash.Button");
+            SecTroubleshooting.Title = Localization.T("Flash.Troubleshooting");
+            TxtTroubleshootingFrozenAxesTitle.Text = Localization.T("Flash.TroubleshootingFrozenAxesTitle");
+            TxtTroubleshootingFrozenAxesBody.Text = Localization.T("Flash.TroubleshootingFrozenAxesBody");
 
             SecDevOptions.Title = Localization.T("Settings.DevOptions");
             ChkShowAllAxes.Content = Localization.T("Settings.ShowAllAxes");

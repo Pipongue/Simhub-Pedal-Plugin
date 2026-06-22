@@ -103,6 +103,11 @@ namespace PneumaticCalibratorSimHub
             ["Flash.Button"] = ("⚡ Flasher firmware", "⚡ Flash firmware"),
             ["Flash.ButtonInProgress"] = ("FLASH EN COURS...", "FLASHING..."),
 
+            ["Flash.Troubleshooting"] = ("DÉPANNAGE", "TROUBLESHOOTING"),
+            ["Flash.TroubleshootingFrozenAxesTitle"] = ("Les axes restent figés au démarrage de SimHub ?", "Axes stay frozen when SimHub starts?"),
+            ["Flash.TroubleshootingFrozenAxesBody"] = ("SimHub scanne automatiquement les ports série pour détecter des cartes Arduino, ce qui peut faire redémarrer la carte en boucle et bloquer ses axes. Solution : dans SimHub, ouvre les paramètres de scan des ports série (« Arduino scan settings »), active « Never scan selected ports », et sélectionne le port de ta carte (Leonardo/Pro Micro). À refaire une seule fois.",
+                                                          "SimHub automatically scans serial ports to detect Arduino boards, which can repeatedly reset the board and freeze its axes. Fix: in SimHub, open the serial port scan settings (\"Arduino scan settings\"), enable \"Never scan selected ports\", and select your board's port (Leonardo/Pro Micro). This only needs to be done once."),
+
             ["Settings.DevOptions"] = ("OPTIONS DÉVELOPPEUR", "DEVELOPER OPTIONS"),
             ["Settings.ShowAllAxes"] = ("Afficher tous les axes (même débranchés, dans l'onglet Calibration)",
                                           "Show all axes (even disconnected, in the Calibration tab)"),
