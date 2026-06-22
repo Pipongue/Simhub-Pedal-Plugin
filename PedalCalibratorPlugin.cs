@@ -22,6 +22,10 @@ namespace PneumaticCalibratorSimHub
             // extrait les DLL de dépendances embarquées si elles manquent (distribution = 1 seul fichier).
             DependencyBootstrapper.EnsureDependenciesExtracted();
             PluginManager = pluginManager;
+
+            // SimHub appelle End()/Init() à chaque changement de jeu, ce qui ferme puis tente de
+            // rouvrir la connexion du panneau de calibration. On la rétablit automatiquement ici.
+            _control?.Resume();
         }
 
         public void End(PluginManager pluginManager)

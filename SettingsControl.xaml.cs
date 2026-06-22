@@ -20,6 +20,7 @@ namespace PneumaticCalibratorSimHub
         private bool _checkingUpdate;
         private bool _isConnected;
         private string _connectedPort;
+        private string _lastPort;
         private bool _suppressLangEvent;
         private bool _suppressAssignmentEvent;
 
@@ -453,6 +454,7 @@ namespace PneumaticCalibratorSimHub
         {
             _isConnected = true;
             _connectedPort = port;
+            _lastPort = port;
             LblStatus.Content = Localization.T("Status.Connected", port);
             LblStatus.Foreground = new SolidColorBrush(Color.FromRgb(34, 197, 94));
             BtnConnect.Content = Localization.T("Disconnect");
@@ -535,7 +537,23 @@ namespace PneumaticCalibratorSimHub
         {
             Localization.LanguageChanged -= ApplyLocalization;
             _scopeTimer?.Stop();
+            if (_isConnected) OnDisconnected();
             _serial.Disconnect();
+        }
+
+        /// <summary>
+        /// Appelé quand le plugin est ré-initialisé sans avoir été détruit (ex : SimHub recharge
+        /// ses plugins à chaque changement de jeu, ce qui appelle End()/Shutdown() puis Init()).
+        /// Le port série se ferme à chaque fois (Shutdown le déconnecte), mais le périphérique HID
+        /// du firmware continue de fonctionner nativement dans Windows pendant ce temps : seule la
+        /// connexion du panneau de calibration est perdue. On la rétablit automatiquement ici.
+        /// </summary>
+        public void Resume()
+        {
+            _scopeTimer?.Start();
+            if (_isConnected || string.IsNullOrEmpty(_lastPort)) return;
+            try { _serial.Connect(_lastPort); SetConnectedUi(_lastPort); }
+            catch { /* port indisponible pour l'instant : l'utilisateur peut reconnecter manuellement */ }
         }
     }
 }
